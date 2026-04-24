@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #1f2937;
+        background: #f4efe5;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        --paper-background: url("assets/paper_bkg.png");
+        min-height: 100vh;
+        margin: 0;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.52), rgba(244, 239, 229, 0.34)),
+          var(--paper-background) 0 0 / 420px 420px repeat,
+          #f4efe5;
+      }
+
+      main {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(200px, 300px);
+        align-content: center;
+        align-items: center;
+        gap: 2rem;
+        width: min(1180px, calc(100% - 2rem));
+        padding: 4rem 0;
+        margin: 0 auto;
+      }
+
+      .content {
+        display: grid;
+        gap: 2rem;
+      }
+
+      .intro {
+        max-width: 660px;
+      }
+
+      h1 {
+        margin: 0 0 0.75rem;
+        font-size: clamp(2.6rem, 8vw, 5.5rem);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .intro p {
+        margin: 0;
+        max-width: 34rem;
+        color: #57534e;
+        font-size: clamp(1rem, 2vw, 1.25rem);
+        line-height: 1.6;
+      }
+
+      .links {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .link-card {
+        min-height: 138px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 1rem 1.15rem;
+        border: 1px solid rgba(87, 83, 78, 0.22);
+        border-radius: 8px;
+        color: inherit;
+        text-decoration: none;
+        background: rgba(255, 252, 244, 0.52);
+        box-shadow: 0 18px 48px rgba(68, 64, 60, 0.14);
+        backdrop-filter: blur(8px);
+        transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+      }
+
+      .link-card:hover,
+      .link-card:focus-visible {
+        border-color: rgba(68, 64, 60, 0.52);
+        background: rgba(255, 252, 244, 0.72);
+        transform: translateY(-2px);
+      }
+
+      .link-card:focus-visible {
+        outline: 3px solid rgba(14, 165, 233, 0.5);
+        outline-offset: 4px;
+      }
+
+      .link-card h2 {
+        margin: 0;
+        font-size: 1.15rem;
+        line-height: 1.25;
+        letter-spacing: 0;
+      }
+
+      .link-card p {
+        margin: 0;
+        color: #57534e;
+        line-height: 1.55;
+      }
+
+      .portrait {
+        --portrait-image: url("assets/fabriziocosta.jpeg");
+        width: min(100%, 320px);
+        justify-self: end;
+        aspect-ratio: 1;
+        background: var(--portrait-image) center / cover no-repeat;
+        filter: saturate(0.94) contrast(1.02);
+        mask-image:
+          linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent),
+          linear-gradient(180deg, transparent, #000 5%, #000 84%, transparent);
+        mask-composite: intersect;
+        -webkit-mask-image:
+          linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent),
+          linear-gradient(180deg, transparent, #000 5%, #000 84%, transparent);
+        -webkit-mask-composite: source-in;
+      }
+
+      @media (max-width: 680px) {
+        main {
+          grid-template-columns: 1fr;
+          align-content: center;
+          padding: 2rem 0;
+        }
+
+        .portrait {
+          width: min(72vw, 260px);
+          justify-self: center;
+          order: -1;
+        }
+
+        .links {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="content">
+        <section class="intro" aria-labelledby="page-title">
+          <h1 id="page-title"></h1>
+          <p id="page-description"></p>
+        </section>
+
+        <section class="links" aria-label=""></section>
+      </div>
+
+      <div class="portrait" role="img" aria-label=""></div>
+    </main>
+    <script>
+      const parseValue = (value) => value.replace(/^"|"$/g, "");
+
+      const parseConfig = (source) => {
+        const config = {};
+        let section = null;
+        let currentItem = null;
+
+        source.split(/\r?\n/).forEach((rawLine) => {
+          if (!rawLine.trim() || rawLine.trimStart().startsWith("#")) {
+            return;
+          }
+
+          const sectionMatch = rawLine.match(/^([A-Za-z]+):$/);
+          if (sectionMatch) {
+            section = sectionMatch[1];
+            config[section] = section === "links" ? [] : {};
+            currentItem = null;
+            return;
+          }
+
+          const itemMatch = rawLine.match(/^\s{2}- ([A-Za-z]+):\s*(.*)$/);
+          if (itemMatch && Array.isArray(config[section])) {
+            currentItem = { [itemMatch[1]]: parseValue(itemMatch[2]) };
+            config[section].push(currentItem);
+            return;
+          }
+
+          const propertyMatch = rawLine.match(/^\s{2,4}([A-Za-z]+):\s*(.*)$/);
+          if (!propertyMatch) {
+            return;
+          }
+
+          const target = currentItem || config[section];
+          target[propertyMatch[1]] = parseValue(propertyMatch[2]);
+        });
+
+        return config;
+      };
+
+      const setBackgroundImage = (name, value) => {
+        if (value) {
+          document.body.style.setProperty(name, `url("${value}")`);
+        }
+      };
+
+      const render = (config) => {
+        document.title = config.site.title;
+        document.getElementById("page-title").textContent = config.site.title;
+        document.getElementById("page-description").textContent = config.site.description;
+
+        const links = document.querySelector(".links");
+        links.setAttribute("aria-label", config.site.linksLabel);
+        links.replaceChildren(...config.links.map((link) => {
+          const anchor = document.createElement("a");
+          anchor.className = "link-card";
+          anchor.href = link.href;
+          if (link.rel) {
+            anchor.rel = link.rel;
+          }
+
+          const body = document.createElement("div");
+          const title = document.createElement("h2");
+          const text = document.createElement("p");
+
+          title.textContent = link.title;
+          text.textContent = link.text;
+
+          body.append(title, text);
+          anchor.append(body);
+          return anchor;
+        }));
+
+        const portrait = document.querySelector(".portrait");
+        portrait.setAttribute("aria-label", config.portrait.alt);
+        setBackgroundImage("--paper-background", config.background.image);
+        portrait.style.setProperty("--portrait-image", `url("${config.portrait.image}")`);
+      };
+
+      fetch("config.yaml")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Unable to load config.yaml: ${response.status}`);
+          }
+
+          return response.text();
+        })
+        .then((source) => render(parseConfig(source)))
+        .catch((error) => {
+          document.body.textContent = error.message;
+        });
+    </script>
+  </body>
+</html>

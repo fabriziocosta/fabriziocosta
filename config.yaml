@@ -1,0 +1,20 @@
+site:
+  title: "Fabrizio Costa"
+  description: "Research in computational biology and machine learning."
+  linksLabel: "GitHub organizations"
+background:
+  image: "assets/paper_bkg.png"
+portrait:
+  image: "assets/fabriziocosta.jpeg"
+  alt: "Portrait of Fabrizio Costa"
+links:
+  - title: "Academic Affiliations"
+    text: "Computer Science at the University of Exeter, UK. "
+    href: "https://experts.exeter.ac.uk/25979-fabrizio-costa"
+  - title: "GitHub Profile"
+    text: "Personal repositories, experiments, and public contributions."
+    href: "https://github.com/fabriziocosta"
+    rel: "me"
+  - title: "fc-ideas"
+    text: "A place for ideas before they become more structured work."
+    href: "https://github.com/fc-ideas"
